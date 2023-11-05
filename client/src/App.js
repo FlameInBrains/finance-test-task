@@ -1,24 +1,27 @@
-import logo from './logo.svg';
 import './App.css';
+import { TickerList } from './components/TickerList';
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
+import 'bulma/css/bulma.css';
 
-function App() {
+export const App = () => {
+  const [tickers, setTickers] = useState([]);
+  const socket = io('http://localhost:4000');
+
+  useEffect(() => {
+    socket.connect();
+    socket.emit('start');
+    socket.on('ticker', (response) => {
+      setTickers(response);
+    })
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <TickerList tickers={tickers} />
   );
 }
 
